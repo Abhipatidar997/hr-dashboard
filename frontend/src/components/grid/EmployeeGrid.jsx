@@ -134,6 +134,10 @@ export default function EmployeeGrid() {
 
       <div className="ag-theme-alpine full-grid rounded">
         <AgGridReact
+        domLayout="autoHeight"
+autoSizeStrategy={{
+  type: "fitGridWidth",
+}}
           ref={gridRef}
           rowData={employees}
           columnDefs={columnDefs}
