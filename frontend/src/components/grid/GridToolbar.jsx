@@ -6,15 +6,14 @@ export default function GridToolbar({
   departments = [],
   onDeptChange,
   value,
-  onSearch
+  onSearch,
+  selectedDept
 }) {
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
       
-      {/* Left Controls */}
       <div className="flex flex-wrap items-center gap-3">
         
-        {/* Search */}
         <input
           type="text"
           placeholder="Search employees..."
@@ -27,8 +26,8 @@ export default function GridToolbar({
           aria-label="Search employees"
         />
 
-        {/* Department Filter */}
         <select
+          value={selectedDept}
           onChange={(e) => onDeptChange(e.target.value)}
           className={clsx(
             'border rounded-md px-3 py-2 text-sm bg-white',
@@ -44,7 +43,6 @@ export default function GridToolbar({
           ))}
         </select>
 
-        {/* Export Button */}
         <button
           onClick={onExportCsv}
           className={clsx(
@@ -57,7 +55,6 @@ export default function GridToolbar({
         </button>
       </div>
 
-      {/* Info */}
       <div className="text-sm text-gray-500">
         Client-side AG Grid — {departments.length} departments
       </div>

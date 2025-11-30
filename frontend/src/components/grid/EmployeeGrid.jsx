@@ -3,11 +3,12 @@ import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 
-import { fullName, currencyINR, skillsToString } from '@/utils/formatters'
+import { fullName, currencyINR } from '@/utils/formatters'
 import GridToolbar from '@/components/grid/GridToolbar'
 import Modal from '@/components/common/Modal'
 import EmployeeDetailCard from '@/components/details/EmployeeDetailCard'
 import useEmployees from '@/hooks/useEmployees'
+import Badge from '@/components/common/Badge'
 
 export default function EmployeeGrid() {
   const { employees } = useEmployees()
@@ -17,17 +18,18 @@ export default function EmployeeGrid() {
   const [modalOpen, setModalOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
 
+  // Unique departments for filter dropdown
   const departments = useMemo(
     () => [...new Set(employees.map(e => e.department))],
     [employees]
   )
 
-
+  // AG Grid Column Definitions
   const columnDefs = useMemo(() => [
     {
       headerName: 'ID',
       field: 'id',
-      width: 90,
+      width: 80,
       filter: 'agNumberColumnFilter'
     },
     {
@@ -35,7 +37,7 @@ export default function EmployeeGrid() {
       valueGetter: params => fullName(params.data),
       sortable: true,
       filter: 'agTextColumnFilter',
-      resizable: true
+      flex: 1
     },
     {
       headerName: 'Email',
@@ -45,66 +47,78 @@ export default function EmployeeGrid() {
     {
       headerName: 'Department',
       field: 'department',
-      filter: 'agSetColumnFilter'
+      filter: 'agSetColumnFilter',
+      width: 130
     },
     {
       headerName: 'Position',
-      field: 'position'
+      field: 'position',
+      flex: 1
     },
     {
       headerName: 'Salary',
       field: 'salary',
-      valueFormatter: params => currencyINR(params.value)
+      valueFormatter: params => currencyINR(params.value),
+      width: 120
     },
     {
       headerName: 'Location',
-      field: 'location'
+      field: 'location',
+      width: 140
     },
     {
       headerName: 'Hire Date',
       field: 'hireDate',
-      filter: 'agDateColumnFilter'
+      filter: 'agDateColumnFilter',
+      width: 130
     },
     {
       headerName: 'Rating',
-      field: 'performanceRating'
+      field: 'performanceRating',
+      width: 100
     },
+
+    // ⭐ FIXED SKILLS COLUMN (React JSX, NOT HTML STRING)
     {
       headerName: 'Skills',
-      valueGetter: params => skillsToString(params.data.skills),
+      field: 'skills',
+      flex: 1,
       cellRenderer: params => {
-        const skills = params.value ? params.value.split(',') : []
-        return skills
-          .map(s => `<span class="badge">${s.trim()}</span>`)
-          .join(' ')
-      },
-      flex: 1
+        const skills = params.data.skills || []
+        return (
+          <div className="flex gap-1 flex-wrap">
+            {skills.map((skill, idx) => (
+              <Badge key={idx} variant="neutral" size="sm">
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        )
+      }
     }
   ], [])
 
-  const defaultColDef = useMemo(
-    () => ({
-      sortable: true,
-      filter: true,
-      resizable: true
-    }),
-    []
-  )
+  const defaultColDef = useMemo(() => ({
+    sortable: true,
+    filter: true,
+    resizable: true
+  }), [])
 
-  
-
-  const handleRowClick = useCallback((event) => {
+  // Row click → open modal
+  const handleRowClick = useCallback(event => {
     setSelectedEmployee(event.data)
     setModalOpen(true)
   }, [])
 
+  // Export CSV
   const handleExportCsv = useCallback(() => {
     gridRef.current?.api.exportDataAsCsv({
       fileName: 'employees.csv'
     })
   }, [])
 
-  const handleDepartmentFilter = useCallback((value) => {
+  // Department Filter
+  const handleDepartmentFilter = useCallback(value => {
     if (!gridRef.current) return
 
     if (!value) {
@@ -116,12 +130,12 @@ export default function EmployeeGrid() {
     }
   }, [])
 
-  const handleSearch = useCallback((value) => {
+  // Search
+  const handleSearch = useCallback(value => {
     setSearchValue(value)
     gridRef.current?.api.setQuickFilter(value)
   }, [])
 
- 
   return (
     <section className="p-6 space-y-6">
       <GridToolbar
@@ -132,12 +146,9 @@ export default function EmployeeGrid() {
         onSearch={handleSearch}
       />
 
-      <div className="ag-theme-alpine full-grid rounded">
+      {/* AG GRID TABLE */}
+      <div className="ag-theme-alpine full-grid rounded shadow-soft">
         <AgGridReact
-        domLayout="autoHeight"
-autoSizeStrategy={{
-  type: "fitGridWidth",
-}}
           ref={gridRef}
           rowData={employees}
           columnDefs={columnDefs}
@@ -147,9 +158,14 @@ autoSizeStrategy={{
           animateRows
           rowSelection="single"
           onRowClicked={handleRowClick}
+          domLayout="autoHeight"
+          autoSizeStrategy={{
+            type: 'fitGridWidth'
+          }}
         />
       </div>
 
+      {/* DETAILS MODAL */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <EmployeeDetailCard employee={selectedEmployee} />
       </Modal>
