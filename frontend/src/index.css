@@ -2,12 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-
 html,
 body,
 #root {
   height: 100%;
-  background-color: #f8fafc; 
+  background-color: #f8fafc;
   scroll-behavior: smooth;
 }
 
@@ -15,10 +14,9 @@ body,
   outline: none;
 }
 
-
 .ag-theme-alpine.full-grid {
-  height: calc(100vh - 220px); 
   width: 100%;
+  min-height: 550px; /* stable height for dashboard */
   border-radius: 0.5rem;
   overflow: hidden;
 }
@@ -32,19 +30,19 @@ body,
   padding-top: 10px;
   padding-bottom: 10px;
   font-size: 14px;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ag-theme-alpine .ag-row-hover {
-  background-color: rgba(37, 99, 235, 0.06) !important; /* subtle primary tint */
+  background-color: rgba(37, 99, 235, 0.06) !important;
 }
-
 
 .ag-theme-alpine .ag-row-selected {
   background-color: rgba(37, 99, 235, 0.12) !important;
 }
 
-
 .shadow-soft {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-
